@@ -62,7 +62,8 @@ class MemesCreatorBot(fp.PoeBot):
         yield fp.PartialResponse(text=f'"{caption}"\n\n{image_response}')
 
     async def get_settings(self, setting: fp.SettingsRequest) -> fp.SettingsResponse:
-        return fp.SettingsResponse(server_bot_dependencies={LLM_MODEL: 1, IMAGE_MODEL: 1})
+        return fp.SettingsResponse(server_bot_dependencies={LLM_MODEL: 1, IMAGE_MODEL: 1}, 
+                                   introduction_message="Welcome to the Memes-Creator running by @xiaowenzhang. Please provide me a topic that you would like me create a meme about. E.g:work...")
     
     # Read the JSON string and extract the image_prompt and caption. Poe does not support JSON object call on GPT3.5/4
     def extract_image_prompt(self, long_string):
