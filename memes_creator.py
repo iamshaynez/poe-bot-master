@@ -17,6 +17,7 @@ import time
 import re
 import os
 
+# Define 2 models for LLM and image model, can be changed with any POE bots
 LLM_MODEL = "Mistral-Large"
 IMAGE_MODEL = "Playground-v2.5"
 
@@ -63,6 +64,7 @@ class MemesCreatorBot(fp.PoeBot):
     async def get_settings(self, setting: fp.SettingsRequest) -> fp.SettingsResponse:
         return fp.SettingsResponse(server_bot_dependencies={LLM_MODEL: 1, IMAGE_MODEL: 1})
     
+    # Read the JSON string and extract the image_prompt and caption. Poe does not support JSON object call on GPT3.5/4
     def extract_image_prompt(self, long_string):
     # 定义正则表达式模式
         pattern = r'"image_prompt": "(.*?)"'
