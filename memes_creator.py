@@ -51,7 +51,7 @@ class MemesCreatorBot(fp.PoeBot):
         print(f'Image Prompt: {image_prompt}')
         print(f'Caption: {caption}')
 
-        yield fp.PartialResponse(text=f'"{caption}"')
+        yield fp.PartialResponse(text=f'"{caption}"\n')
 
         # Query Image Model for creating image
         request.query = [fp.ProtocolMessage(role="user", content=f"{image_prompt}, digital painting")]
