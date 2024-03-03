@@ -52,14 +52,14 @@ class MemesCreatorBot(fp.PoeBot):
         print(f'Image Prompt: {image_prompt}')
         print(f'Caption: {caption}')
 
-        yield fp.PartialResponse(text=f'"{caption}"\n')
+        yield fp.PartialResponse(text=f'"{caption}"\n\n')
 
         # Query Image Model for creating image
         request.query = [fp.ProtocolMessage(role="user", content=f"{image_prompt}, digital painting")]
         image_response = await fp.get_final_response(request, bot_name=IMAGE_MODEL, api_key=request.access_key)
         print(f'Image Response: {image_response}')
 
-        yield fp.PartialResponse(text=image_response)
+        yield fp.PartialResponse(text=f'"{caption}"\n\n{image_response}')
 
     async def get_settings(self, setting: fp.SettingsRequest) -> fp.SettingsResponse:
         return fp.SettingsResponse(server_bot_dependencies={LLM_MODEL: 1, IMAGE_MODEL: 1})
