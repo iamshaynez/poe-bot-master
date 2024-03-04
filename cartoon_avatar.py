@@ -25,33 +25,33 @@ class CartoonAvatarBot(fp.PoeBot):
     async def get_response(
         self, request: fp.QueryRequest
     ) -> AsyncIterable[fp.PartialResponse]:
-        for message in reversed(request.query):
-            for attachment in message.attachments:
-                print(f'Attachment: {attachment.content_type}') 
-                print(f'Query: {request.query}')
-                #yield fp.PartialResponse(text=f'Attachment: {attachment.content_type}')
-                #if attachment.content_type == "application/pdf":
-        
-        message = request.query[-1]
-        message.content = f"""Please read this image as a profile avatar. Describe the key spec of the main person:
-            1. Include hair, skin color, gender, cloth, Accessories, posture, facial expression.
-            2. Make the information from step 1 a image prompt within 70 words.
-            3. Print the prompt in below json format:
+        try:
+            message = request.query[-1]
+            if len(message.attachments) != 1 or not message.attachments[0].content_type.startswith('image'):
+                yield fp.PartialResponse(text="Please send an image.")
+                return
 
-            \`\`\`json
-            "image_prompt": ""
-            \`\`\`"""
-        final_vision_prompt = await fp.get_final_response(request, bot_name=LLM_MODEL, api_key=request.access_key)
-        print(final_vision_prompt)
-        image_prompt = self.extract_image_prompt(final_vision_prompt)
-        print(image_prompt)
+            message.content = f"""Please read this image as a profile avatar. Describe the key spec of the main person:
+                1. Include age, hair, skin color, gender, cloth, Accessories, posture, facial expression.
+                2. Make the information from step 1 a image prompt within 60 words.
+                3. Print the prompt in below json format:
 
-        # Query Image Model for creating image
-        message.content = f"Illustration photo, soft colors, Japanese anime style, white background, sticker of [{image_prompt}]"
-        image_response = await fp.get_final_response(request, bot_name=IMAGE_MODEL, api_key=request.access_key)
-        print(image_response)
-        yield fp.PartialResponse(text=f'{image_response}')
+                \`\`\`json
+                "image_prompt": ""
+                \`\`\`"""
+            final_vision_prompt = await fp.get_final_response(request, bot_name=LLM_MODEL, api_key=request.access_key)
+            print(final_vision_prompt)
+            image_prompt = self.extract_image_prompt(final_vision_prompt)
+            print(image_prompt)
 
+            # Query Image Model for creating image
+            message.content = f"Illustration photo, soft colors, Japanese anime style, white background, sticker of [{image_prompt}]"
+            image_response = await fp.get_final_response(request, bot_name=IMAGE_MODEL, api_key=request.access_key)
+            print(image_response)
+            yield fp.PartialResponse(text=f'{image_response}')
+        except:
+            yield fp.PartialResponse(text="Something went wrong. Please try again or contact the admin.")
+            return
     async def get_settings(self, setting: fp.SettingsRequest) -> fp.SettingsResponse:
         return fp.SettingsResponse(server_bot_dependencies={LLM_MODEL: 1, IMAGE_MODEL: 1}, 
                                    introduction_message="Welcome to the Cartoon-Avatar Bot running by @xiaowenzhang. Please provide a image I will create a cartoon style avatar image for you...",
