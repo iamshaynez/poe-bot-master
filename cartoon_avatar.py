@@ -26,11 +26,17 @@ class CartoonAvatarBot(fp.PoeBot):
         self, request: fp.QueryRequest
     ) -> AsyncIterable[fp.PartialResponse]:
         try:
+            # remove content, only use the latest 1 query.
+            request.query = [request.query[-1]]
+            # pick the one last message
             message = request.query[-1]
+            # validate attachment, only allow 1 and image 
             if len(message.attachments) != 1 or not message.attachments[0].content_type.startswith('image'):
                 yield fp.PartialResponse(text="Please send an image.")
                 return
 
+            # prompt to vision model and describe the image
+            # if any key infor missed from the converted image, this prompt can be used to optimize
             message.content = f"""Please read this image as a profile avatar. Describe the key spec of the main person:
                 1. Include age, hair, skin color, gender, cloth, Accessories, posture, facial expression.
                 2. Make the information from step 1 a image prompt within 60 words.
@@ -39,12 +45,15 @@ class CartoonAvatarBot(fp.PoeBot):
                 \`\`\`json
                 "image_prompt": ""
                 \`\`\`"""
+            # the prompt for remix image
             final_vision_prompt = await fp.get_final_response(request, bot_name=LLM_MODEL, api_key=request.access_key)
             print(final_vision_prompt)
             image_prompt = self.extract_image_prompt(final_vision_prompt)
             print(image_prompt)
 
             # Query Image Model for creating image
+            # the attachment is kept within the same request, only prompt is placed in the content
+            # use poe remix image model, currently only SDXL and Playground is supported. Let's see when DALLE3 gives the same capability
             message.content = f"Illustration photo, soft colors, Japanese anime style, white background, sticker of [{image_prompt}]"
             image_response = await fp.get_final_response(request, bot_name=IMAGE_MODEL, api_key=request.access_key)
             print(image_response)
