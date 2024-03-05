@@ -30,6 +30,8 @@ class CartoonAvatarBot(fp.PoeBot):
             request.query = [request.query[-1]]
             # pick the one last message
             message = request.query[-1]
+            # save original user message
+            original_content = message.content
             # validate attachment, only allow 1 and image 
             if len(message.attachments) != 1 or not message.attachments[0].content_type.startswith('image'):
                 yield fp.PartialResponse(text="Please send an image.")
@@ -39,7 +41,7 @@ class CartoonAvatarBot(fp.PoeBot):
             # if any key infor missed from the converted image, this prompt can be used to optimize
             message.content = f"""Please read this image as a profile avatar. Describe the key spec of the main person:
                 1. Include age, hair, skin color, gender, cloth, Accessories, posture, facial expression.
-                2. Make the information from step 1 a image prompt within 60 words.
+                2. Make the information from step 1 a image prompt within 50 words.
                 3. Print the prompt in below json format:
 
                 \`\`\`json
@@ -54,8 +56,12 @@ class CartoonAvatarBot(fp.PoeBot):
             # Query Image Model for creating image
             # the attachment is kept within the same request, only prompt is placed in the content
             # use poe remix image model, currently only SDXL and Playground is supported. Let's see when DALLE3 gives the same capability
-            message.content = f"Illustration photo, soft colors, Japanese anime style, white background, sticker of [{image_prompt}]"
+            if original_content.startswith('--Prompt'):
+                message.content = f"{original_content.replace('--Prompt', '')} of [{image_prompt}]"
+            else:
+                message.content = f"Illustration photo, soft colors, Japanese anime style, white background, sticker of [{image_prompt}]"
             image_response = await fp.get_final_response(request, bot_name=IMAGE_MODEL, api_key=request.access_key)
+            
             print(image_response)
             yield fp.PartialResponse(text=f'{image_response}')
         except:
