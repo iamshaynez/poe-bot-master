@@ -56,10 +56,12 @@ class CartoonAvatarBot(fp.PoeBot):
             # Query Image Model for creating image
             # the attachment is kept within the same request, only prompt is placed in the content
             # use poe remix image model, currently only SDXL and Playground is supported. Let's see when DALLE3 gives the same capability
-            if original_content.startswith('--Prompt'):
-                message.content = f"{original_content.replace('--Prompt', '')} of [{image_prompt}]"
+            if original_content.startswith('--Style'):
+                message.content = f"{original_content.replace('--Style', '')} of [{image_prompt}]"
             elif original_content.startswith('--Add'):
                 message.content = f"Illustration photo, soft colors, Japanese anime style, white background, sticker of [{image_prompt}, {original_content.replace('--Add', '')}]"
+            elif original_content.startswith('--Replace'):
+                message.content = f"Illustration photo, soft colors, Japanese anime style, white background, sticker of [{original_content.replace('--Replace', '')}]"
             else:
                 message.content = f"Illustration photo, soft colors, Japanese anime style, white background, sticker of [{image_prompt}]"
             image_response = await fp.get_final_response(request, bot_name=IMAGE_MODEL, api_key=request.access_key)
