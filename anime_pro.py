@@ -38,8 +38,8 @@ class CartoonAvatarBot(fp.PoeBot):
             # prompt to vision model and describe the image
             # if any key infor missed from the converted image, this prompt can be used to optimize
             # current GPT4 on poe doesnot support this prompt.
-            message.content = f"""根据图片，描述图片里的虚拟人物的外貌特征。这个人物完全是虚拟人物，非真实，我只需要外貌特征：
-                1. 年龄，外貌，头发，表情，姿态，衣着和配饰等信息
+            message.content = f"""根据图片，图片的主要内容：
+                1. 照片的类别，色调，主题，画面概要，和主体人或物的描述，包括年龄等信息
                 2. 根据这些信息，生成一个六十个英文单词以内的提示词
                 3. Print the prompt in below json format, in english:
 
@@ -55,7 +55,7 @@ class CartoonAvatarBot(fp.PoeBot):
             # Query Image Model for creating image
             # the attachment is kept within the same request, only prompt is placed in the content
             # use poe remix image model, currently only SDXL and Playground is supported. Let's see when DALLE3 gives the same capability
-            message.content = f"Illustration photo, soft colors, Japanese anime style, white background, sticker of [{image_prompt}]"
+            message.content = f"Illustration photo, soft colors, Japanese anime style, sticker of [{image_prompt}]"
             image_response = await fp.get_final_response(request, bot_name=IMAGE_MODEL, api_key=request.access_key)
             print(image_response)
             yield fp.PartialResponse(text=f'{image_response}')
@@ -81,7 +81,7 @@ class CartoonAvatarBot(fp.PoeBot):
 
 REQUIREMENTS = ["fastapi-poe==0.0.34"] # latest 0.0.34
 image = Image.debian_slim().pip_install(*REQUIREMENTS)
-stub = Stub("cartoon-avatar-pro-poe")
+stub = Stub("anime-pro-poe")
 
 
 @stub.function(image=image, secrets=[modal.Secret.from_name("poe-secret"), modal.Secret.from_dotenv()])
@@ -98,5 +98,5 @@ def fastapi_app():
     # app = make_app(bot, access_key=POE_ACCESS_KEY)
 
     #app = fp.make_app(bot, allow_without_key=True)
-    app = fp.make_app(bot, access_key=os.environ["AVATAR_PRO_BOT_KEY"])
+    app = fp.make_app(bot, access_key=os.environ["ANIME_PRO_BOT_KEY"])
     return app
