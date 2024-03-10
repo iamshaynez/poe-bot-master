@@ -30,6 +30,8 @@ class CartoonAvatarBot(fp.PoeBot):
             request.query = [request.query[-1]]
             # pick the one last message
             message = request.query[-1]
+            # save original user message
+            original_content = message.content
             # validate attachment, only allow 1 and image 
             if len(message.attachments) != 1 or not message.attachments[0].content_type.startswith('image'):
                 yield fp.PartialResponse(text="Please send an image.")
@@ -55,7 +57,14 @@ class CartoonAvatarBot(fp.PoeBot):
             # Query Image Model for creating image
             # the attachment is kept within the same request, only prompt is placed in the content
             # use poe remix image model, currently only SDXL and Playground is supported. Let's see when DALLE3 gives the same capability
-            message.content = f"Illustration photo, soft colors, Japanese anime style, sticker of [{image_prompt}]"
+            if original_content.startswith('--Style'):
+                message.content = f"{original_content.replace('--Style', '')} of [{image_prompt}]"
+            elif original_content.startswith('--Add'):
+                message.content = f"Illustration photo, soft colors, Japanese anime style, sticker of [{image_prompt}, {original_content.replace('--Add', '')}]"
+            elif original_content.startswith('--Replace'):
+                message.content = f"Illustration photo, soft colors, Japanese anime style, sticker of [{original_content.replace('--Replace', '')}]"
+            else:
+                message.content = f"Illustration photo, soft colors, Japanese anime style, sticker of [{image_prompt}]"
             image_response = await fp.get_final_response(request, bot_name=IMAGE_MODEL, api_key=request.access_key)
             print(image_response)
             yield fp.PartialResponse(text=f'{image_response}')
@@ -64,7 +73,7 @@ class CartoonAvatarBot(fp.PoeBot):
             return
     async def get_settings(self, setting: fp.SettingsRequest) -> fp.SettingsResponse:
         return fp.SettingsResponse(server_bot_dependencies={LLM_MODEL: 1, IMAGE_MODEL: 1}, 
-                                   introduction_message="Welcome to the Cartoon-Avatar Bot running by @xiaowenzhang. Please provide a image I will create a cartoon style avatar image for you...",
+                                   introduction_message="Welcome to the Anime Image Bot running by @xiaowenzhang. Please provide a image I will create a cartoon style avatar image for you...",
                                    allow_attachments=True)
     
     # Read the JSON string and extract the image_prompt and caption. Poe does not support JSON object call on GPT3.5/4
