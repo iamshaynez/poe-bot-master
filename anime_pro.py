@@ -18,7 +18,7 @@ import re
 import os
 
 # Define 2 models for LLM and image model, can be changed with any POE bots
-LLM_MODEL = "GPT-4"
+LLM_MODEL = "Claude-3-Haiku"
 IMAGE_MODEL = "Playground-v2.5"
 
 class CartoonAvatarBot(fp.PoeBot):
@@ -40,9 +40,9 @@ class CartoonAvatarBot(fp.PoeBot):
             # prompt to vision model and describe the image
             # if any key infor missed from the converted image, this prompt can be used to optimize
             # current GPT4 on poe doesnot support this prompt.
-            message.content = f"""根据图片，图片的主要内容：
-                1. 照片的类别，色调，主题，画面概要，和主体人或物的描述，包括年龄等信息
-                2. 根据这些信息，生成一个六十个英文单词以内的提示词
+            message.content = f"""Based on image, describe：
+                1. The category of the photograph, composition, angle, the color tone, the theme, a summary of the composition, and a description of the main subject(s) or object(s), including information such as age.
+                2. generate a prompt of 60 English words or less for image remix, keep main information and subjects.
                 3. Print the prompt in below json format, in english:
 
                 \`\`\`json
