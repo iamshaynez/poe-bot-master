@@ -11,14 +11,14 @@ from __future__ import annotations
 from typing import AsyncIterable
 import asyncio
 import fastapi_poe as fp
-from modal import Image, Stub, asgi_app
+from modal import Image, App, asgi_app
 import modal
 import time
 import re
 import os
 
 # Define 2 models for LLM and image model, can be changed with any POE bots
-LLM_MODEL = "Mistral-Large"
+LLM_MODEL = "GPT-4o"
 IMAGE_MODEL = "Playground-v2.5"
 
 class MemesCreatorBot(fp.PoeBot):
@@ -63,7 +63,7 @@ class MemesCreatorBot(fp.PoeBot):
 
     async def get_settings(self, setting: fp.SettingsRequest) -> fp.SettingsResponse:
         return fp.SettingsResponse(server_bot_dependencies={LLM_MODEL: 1, IMAGE_MODEL: 1}, 
-                                   introduction_message="Welcome to the Memes-Creator running by @xiaowenzhang. Please provide me a topic that you would like me create a meme about. E.g:work...")
+                                   introduction_message="Welcome to the Memes-Creator running by @xiaowenzhang. Please provide me a topic that you would like me create a meme about. E.g:work...\n - Update 20240602: Reduced cost by using GPT-4o, have fun!")
     
     # Read the JSON string and extract the image_prompt and caption. Poe does not support JSON object call on GPT3.5/4
     def extract_image_prompt(self, long_string):
@@ -85,12 +85,12 @@ class MemesCreatorBot(fp.PoeBot):
         # 如果找到匹配项，返回匹配的内容，否则返回"ERROR"
         return match.group(1) if match else "ERROR"
 
-REQUIREMENTS = ["fastapi-poe==0.0.34"] # latest 0.0.34
+REQUIREMENTS = ["fastapi-poe==0.0.44"] # latest 0.0.34
 image = Image.debian_slim().pip_install(*REQUIREMENTS)
-stub = Stub("memes-creator-poe")
+app = App("memes-creator-poe")
 
 
-@stub.function(image=image, secrets=[modal.Secret.from_name("poe-secret"), modal.Secret.from_dotenv()])
+@app.function(image=image, secrets=[modal.Secret.from_name("poe-secret"), modal.Secret.from_dotenv()])
 @asgi_app()
 def fastapi_app():
     bot = MemesCreatorBot()
