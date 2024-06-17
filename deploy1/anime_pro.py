@@ -11,14 +11,14 @@ from __future__ import annotations
 from typing import AsyncIterable
 import asyncio
 import fastapi_poe as fp
-from modal import Image, Stub, asgi_app
+from modal import Image, App, asgi_app
 import modal
 import time
 import re
 import os
 
 # Define 2 models for LLM and image model, can be changed with any POE bots
-LLM_MODEL = "RekaFlash"
+LLM_MODEL = "Claude-3-Haiku"
 IMAGE_MODEL = "Playground-v2.5"
 
 class CartoonAvatarBot(fp.PoeBot):
@@ -39,10 +39,11 @@ class CartoonAvatarBot(fp.PoeBot):
 
             # prompt to vision model and describe the image
             # if any key infor missed from the converted image, this prompt can be used to optimize
-            message.content = f"""Please read this image as a profile avatar. Describe the key spec of the main person:
-                1. Include age, hair, skin color, gender, cloth, Accessories, posture, facial expression.
-                2. Make the information from step 1 a image prompt within 50 words.
-                3. Print the prompt in below json format:
+            # current GPT4 on poe doesnot support this prompt.
+            message.content = f"""Based on image, describe：
+                1. The category of the photograph, composition, angle, the color tone, the theme, a summary of the composition, and a description of the main subject(s) or object(s), including information such as age.
+                2. generate a prompt of 60 English words or less for image remix, keep main information and subjects.
+                3. Print the prompt in below json format, in english:
 
                 \`\`\`json
                 "image_prompt": ""
@@ -59,13 +60,12 @@ class CartoonAvatarBot(fp.PoeBot):
             if original_content.startswith('--Style'):
                 message.content = f"{original_content.replace('--Style', '')} of [{image_prompt}]"
             elif original_content.startswith('--Add'):
-                message.content = f"Illustration photo, soft colors, Japanese anime style, white background, sticker of [{image_prompt}, {original_content.replace('--Add', '')}]"
+                message.content = f"Illustration photo, soft colors, Japanese anime style, sticker of [{image_prompt}, {original_content.replace('--Add', '')}]"
             elif original_content.startswith('--Replace'):
-                message.content = f"Illustration photo, soft colors, Japanese anime style, white background, sticker of [{original_content.replace('--Replace', '')}]"
+                message.content = f"Illustration photo, soft colors, Japanese anime style, sticker of [{original_content.replace('--Replace', '')}]"
             else:
-                message.content = f"Illustration photo, soft colors, Japanese anime style, white background, sticker of [{image_prompt}]"
+                message.content = f"Illustration photo, soft colors, Japanese anime style, sticker of [{image_prompt}]"
             image_response = await fp.get_final_response(request, bot_name=IMAGE_MODEL, api_key=request.access_key)
-
             print(image_response)
             yield fp.PartialResponse(text=f'{image_response}')
         except:
@@ -73,7 +73,7 @@ class CartoonAvatarBot(fp.PoeBot):
             return
     async def get_settings(self, setting: fp.SettingsRequest) -> fp.SettingsResponse:
         return fp.SettingsResponse(server_bot_dependencies={LLM_MODEL: 1, IMAGE_MODEL: 1}, 
-                                   introduction_message="Welcome to the Cartoon-Avatar Bot running by @xiaowenzhang. Please provide a image I will create a cartoon style avatar image for you...",
+                                   introduction_message="Welcome to the Anime Image Bot running by @xiaowenzhang. Please provide a image I will create a cartoon style avatar image for you...",
                                    allow_attachments=True)
     
     # Read the JSON string and extract the image_prompt and caption. Poe does not support JSON object call on GPT3.5/4
@@ -88,12 +88,12 @@ class CartoonAvatarBot(fp.PoeBot):
         return match.group(1) if match else "ERROR"
 
 
-REQUIREMENTS = ["fastapi-poe==0.0.34"] # latest 0.0.34
+REQUIREMENTS = ["fastapi-poe==0.0.44"] # latest 0.0.34
 image = Image.debian_slim().pip_install(*REQUIREMENTS)
-stub = Stub("cartoon-avatar-poe")
+app = App("anime-pro-poe")
 
 
-@stub.function(image=image, secrets=[modal.Secret.from_name("poe-secret"), modal.Secret.from_dotenv()])
+@app.function(image=image, secrets=[modal.Secret.from_name("poe-secret"), modal.Secret.from_dotenv()])
 @asgi_app()
 def fastapi_app():
     bot = CartoonAvatarBot()
@@ -107,5 +107,5 @@ def fastapi_app():
     # app = make_app(bot, access_key=POE_ACCESS_KEY)
 
     #app = fp.make_app(bot, allow_without_key=True)
-    app = fp.make_app(bot, access_key=os.environ["AVATAR_BOT_KEY"])
+    app = fp.make_app(bot, access_key=os.environ["ANIME_PRO_BOT_KEY"])
     return app

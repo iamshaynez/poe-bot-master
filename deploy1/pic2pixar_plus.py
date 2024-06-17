@@ -11,7 +11,7 @@ from __future__ import annotations
 from typing import AsyncIterable
 import asyncio
 import fastapi_poe as fp
-from modal import Image, Stub, asgi_app
+from modal import Image, App, asgi_app
 import modal
 import time
 import re
@@ -89,12 +89,12 @@ class Pic2PixarBot(fp.PoeBot):
         return match.group(1) if match else "ERROR"
 
 
-REQUIREMENTS = ["fastapi-poe==0.0.34"] # latest 0.0.34
+REQUIREMENTS = ["fastapi-poe==0.0.44"] # latest 0.0.34
 image = Image.debian_slim().pip_install(*REQUIREMENTS)
-stub = Stub("pixar-plus-poe")
+app = App("pixar-plus-poe")
 
 
-@stub.function(image=image, secrets=[modal.Secret.from_name("poe-secret"), modal.Secret.from_dotenv()])
+@app.function(image=image, secrets=[modal.Secret.from_name("poe-secret"), modal.Secret.from_dotenv()])
 @asgi_app()
 def fastapi_app():
     bot = Pic2PixarBot()
