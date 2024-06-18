@@ -19,7 +19,7 @@ import os
 
 # Define 2 models for LLM and image model, can be changed with any POE bots
 LLM_MODEL = "GPT-4o"
-IMAGE_MODEL = "Ideogram"
+IMAGE_MODEL = "DALL-E-3"
 
 class OgImageCreatorBot(fp.PoeBot):
     async def get_response(
@@ -45,6 +45,7 @@ class OgImageCreatorBot(fp.PoeBot):
 
 steps:
 
+0. always response in English
 1. create a story line with one main character(can be person or anything based on the nature of the content)
 2. from the story make 4 very simple prompts for each panel of comic in less than 10 words for each
 3. print output in json
@@ -69,12 +70,12 @@ steps:
             panel4_prompt = self.extract_image_prompt(response_string, "panel4_prompt")
 
             # final prompt
-            message.content = f"generate a four panel comic with a minimalist style of doodle. about: \n1.{panel1_prompt} 2.{panel2_prompt} 3.{panel3_prompt} 4.{panel4_prompt}"
+            message.content = f"generate a four panel comic. Below panels in order.: \n1.{panel1_prompt} \n2.{panel2_prompt} \n3.{panel3_prompt} \n4.{panel4_prompt}"
             print(f'Image Prompt: \n{message.content}')
             image_response = await fp.get_final_response(request, bot_name=IMAGE_MODEL, api_key=request.access_key)
             #print(message.content)
             print(image_response)
-            yield fp.PartialResponse(text=f'"**Story**: \n\n{story_line}"\n\n{image_response}')
+            yield fp.PartialResponse(text=f'**Story**: \n\n"{story_line}"\n\n{image_response}')
 
         except Exception as e:
             print(f"An error occurred: {e}")
