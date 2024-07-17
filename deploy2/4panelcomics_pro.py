@@ -19,7 +19,7 @@ import os
 
 # Define 2 models for LLM and image model, can be changed with any POE bots
 LLM_MODEL = "GPT-4o"
-IMAGE_MODEL = "DALL-E-3"
+IMAGE_MODEL = "Ideogram"
 
 class OgImageCreatorBot(fp.PoeBot):
     async def get_response(
@@ -84,7 +84,7 @@ steps:
     async def get_settings(self, setting: fp.SettingsRequest) -> fp.SettingsResponse:
         return fp.SettingsResponse(server_bot_dependencies={LLM_MODEL: 1, IMAGE_MODEL: 1}, 
                                    introduction_message="Welcome to 4PanelComics Pro running by @xiaowenzhang. Please provide content or even a full article for me to create a 4 Panel Comics for you. \n\n**Click Upvote to Support my work!**",
-                                   allow_attachments=False)
+                                   allow_attachments=True)
     
     # Read the JSON string and extract the image_prompt and caption. Poe does not support JSON object call on GPT3.5/4
     def extract_image_prompt(self, json_string, tag):

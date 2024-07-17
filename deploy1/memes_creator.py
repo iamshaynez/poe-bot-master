@@ -19,7 +19,7 @@ import os
 
 # Define 2 models for LLM and image model, can be changed with any POE bots
 LLM_MODEL = "GPT-4o"
-IMAGE_MODEL = "Playground-v2.5"
+IMAGE_MODEL = "Ideogram"
 
 class MemesCreatorBot(fp.PoeBot):
     async def get_response(
@@ -55,7 +55,7 @@ class MemesCreatorBot(fp.PoeBot):
         yield fp.PartialResponse(text=f'"{caption}"\n\n')
 
         # Query Image Model for creating image
-        request.query = [fp.ProtocolMessage(role="user", content=f"{image_prompt}, digital painting")]
+        request.query = [fp.ProtocolMessage(role="user", content=f"An amusingly exaggerated cartoon of {image_prompt}, The overall tone of the image is playful and humorous, capturing the essence of impatience in a sarcastic and lighthearted way.")]
         image_response = await fp.get_final_response(request, bot_name=IMAGE_MODEL, api_key=request.access_key)
         print(f'Image Response: {image_response}')
 
@@ -63,7 +63,7 @@ class MemesCreatorBot(fp.PoeBot):
 
     async def get_settings(self, setting: fp.SettingsRequest) -> fp.SettingsResponse:
         return fp.SettingsResponse(server_bot_dependencies={LLM_MODEL: 1, IMAGE_MODEL: 1}, 
-                                   introduction_message="Welcome to the Memes-Creator running by @xiaowenzhang. Please provide me a topic that you would like me create a meme about. E.g:work...\n - Update 20240602: Reduced cost by using GPT-4o, have fun!")
+                                   introduction_message="Welcome to the Memes-Creator running by @xiaowenzhang. Please provide me a topic that you would like me create a meme about. E.g:work...\n - Update 20240602: Reduced cost by using GPT-4o, have fun!\n - Update 20240710: Use Ideogram for best quality")
     
     # Read the JSON string and extract the image_prompt and caption. Poe does not support JSON object call on GPT3.5/4
     def extract_image_prompt(self, long_string):

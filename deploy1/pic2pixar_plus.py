@@ -19,7 +19,7 @@ import os
 
 # Define 2 models for LLM and image model, can be changed with any POE bots
 LLM_MODEL = "Gemini-1.5-Pro"
-IMAGE_MODEL = "StableDiffusion3"
+IMAGE_MODEL = "Ideogram"
 
 class Pic2PixarBot(fp.PoeBot):
     async def get_response(
