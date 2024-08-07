@@ -19,7 +19,7 @@ import os
 
 # Define 2 models for LLM and image model, can be changed with any POE bots
 LLM_MODEL = "Gemini-1.5-Pro"
-IMAGE_MODEL = "Ideogram"
+IMAGE_MODEL = "FLUX-pro"
 
 class Pic2PixarBot(fp.PoeBot):
     async def get_response(
@@ -62,9 +62,13 @@ class Pic2PixarBot(fp.PoeBot):
             if original_content.startswith('--Style'):
                 message.content = f"{original_content.replace('--Style', '')} of [{image_prompt}]"
             elif original_content.startswith('--Add'):
-                message.content = f"disney pixar character cartoon style, of [{image_prompt}, {original_content.replace('--Add', '')}]"
+                message.content = f"disney pixar cartoon movie style, au naturel, PS2, PS1, hyper detailed, digital art, trending in artstation, cinematic lighting, studio quality, smooth render of [{image_prompt}]"
+            elif original_content.startswith('--Clash'):
+                message.content = f"3d, clash of clans, fantasy game, detailed, photorealistic, disney style, pixar style of [{image_prompt}]"
+            elif original_content.startswith('--Digital'):
+                message.content = f"A digital painting by Artgerm, beautiful, masterpiece, concept art of [{image_prompt}]"
             else:
-                message.content = f"disney pixar character cartoon style, of [{image_prompt}]"
+                message.content = f"disney pixar cartoon movie style, au naturel, PS2, PS1, hyper detailed, digital art, trending in artstation, cinematic lighting, studio quality, smooth render of [{image_prompt}]"
             image_response = await fp.get_final_response(request, bot_name=IMAGE_MODEL, api_key=request.access_key)
             print(message.content)
             print(image_response)
@@ -74,7 +78,7 @@ class Pic2PixarBot(fp.PoeBot):
             return
     async def get_settings(self, setting: fp.SettingsRequest) -> fp.SettingsResponse:
         return fp.SettingsResponse(server_bot_dependencies={LLM_MODEL: 1, IMAGE_MODEL: 1}, 
-                                   introduction_message="Welcome to the Pic2Pixar Image Bot Plus running by @xiaowenzhang. Please provide a image I will create a pixar style image for you...",
+                                   introduction_message="Welcome to the Pic2Pixar Image Bot Plus running by @xiaowenzhang. Please provide a image I will create a pixar style image for you...\n\n Update 20240806:\n\n - Change image model to FLUX-pro",
                                    allow_attachments=True)
     
     # Read the JSON string and extract the image_prompt and caption. Poe does not support JSON object call on GPT3.5/4
