@@ -19,7 +19,7 @@ import os
 
 # Define 2 models for LLM and image model, can be changed with any POE bots
 LLM_MODEL = "RekaFlash"
-IMAGE_MODEL = "Playground-v2.5"
+IMAGE_MODEL = "Playground-v3"
 
 class CartoonAvatarBot(fp.PoeBot):
     async def get_response(
