@@ -19,7 +19,7 @@ import os
 
 # Define 2 models for LLM and image model, can be changed with any POE bots
 LLM_MODEL = "GPT-4o"
-IMAGE_MODEL = "Playground-v3"
+IMAGE_MODEL = "Playground-v2.5"
 
 class OgImageCreatorBot(fp.PoeBot):
     async def get_response(
