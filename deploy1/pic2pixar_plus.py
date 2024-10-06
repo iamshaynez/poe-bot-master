@@ -44,7 +44,7 @@ class Pic2PixarBot(fp.PoeBot):
 
 1. list all objects or character in the image with detail descriptions including information such as age, race, cloth and positions.
 2. understand the key concept of this photo and composition of main objects
-3. From the main objects, describe this photo again to 重点突出描述这张照片的主要内容及这些主要物品和人物的细节特别是衣着色彩等画面信息
+3. From the main objects, describe this photo again to 重点突出描述这张照片的主要内容及这些主要物品和人物的细节特别是衣着色彩等画面信息, in less than 180 words
 4. Print the description in below json format, in english:
 
                 \`\`\`json
