@@ -18,8 +18,8 @@ import re
 import os
 
 # Define 2 models for LLM and image model, can be changed with any POE bots
-LLM_MODEL = "GPT-4o"
-IMAGE_MODEL = "Playground-v2.5"
+LLM_MODEL = "Claude-3.5-Haiku"
+IMAGE_MODEL = "Playground-v3"
 
 class OgImageCreatorBot(fp.PoeBot):
     async def get_response(
@@ -41,7 +41,7 @@ class OgImageCreatorBot(fp.PoeBot):
             {original_content}
             ---
 
-            prompt in less than 50 words:
+            prompt in less than 30 words:
 
                 \`\`\`json
                 "image_prompt": ""
@@ -52,7 +52,7 @@ class OgImageCreatorBot(fp.PoeBot):
             image_prompt = self.extract_image_prompt(final_vision_prompt)
             
 
-            message.content = f"{image_prompt}, in the style of minimalist flat illustrator, poster --aspect 16:9"
+            message.content = f"{image_prompt}, in the style of colorful, creative, illustrations, innovative page design, flat minimalist, vector --aspect 16:9"
             print(f'Prompt: {message.content}')
             image_response = await fp.get_final_response(request, bot_name=IMAGE_MODEL, api_key=request.access_key)
             print(message.content)
@@ -63,7 +63,7 @@ class OgImageCreatorBot(fp.PoeBot):
             return
     async def get_settings(self, setting: fp.SettingsRequest) -> fp.SettingsResponse:
         return fp.SettingsResponse(server_bot_dependencies={LLM_MODEL: 1, IMAGE_MODEL: 1}, 
-                                   introduction_message="Welcome to the OG Image Creator Bot Pro running by @xiaowenzhang. Please provide content or even a full article for me to create a OG image for your publications.",
+                                   introduction_message="Welcome to the OG Image Creator Bot Pro running by @xiaowenzhang. Please provide content or even a full article for me to create a OG image for your publications. \n\n**Update 20241109:**\n\n - Change to Claude-3.5-Haiku + Playground-v3\n\n**Click Upvote to Support my work!**",
                                    allow_attachments=True)
     
     # Read the JSON string and extract the image_prompt and caption. Poe does not support JSON object call on GPT3.5/4

@@ -43,7 +43,7 @@ class OgImageCreatorBot(fp.PoeBot):
 {original_content}
 \`\`\`
 
-Print output in json, your design should be outstanding, creative like art.
+Print output in English in json, your design should be outstanding, creative like art.
 
 \`\`\`json
 "describe_the_poster": " ",
