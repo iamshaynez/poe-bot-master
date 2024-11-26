@@ -19,7 +19,7 @@ import os
 
 # Define 2 models for LLM and image model, can be changed with any POE bots
 LLM_MODEL = "Gemini-1.5-Pro"
-IMAGE_MODEL = "FLUX-pro"
+IMAGE_MODEL = "FLUX-pro-1.1"
 
 class Pic2PixarBot(fp.PoeBot):
     async def get_response(
@@ -42,10 +42,9 @@ class Pic2PixarBot(fp.PoeBot):
             # current GPT4 on poe doesnot support this prompt.
             message.content = f"""Based on image, describe follow below chains of thoughts：
 
-1. list all objects or character in the image with detail descriptions including information such as age, race, cloth and positions.
-2. understand the key concept of this photo and composition of main objects
-3. From the main objects, describe this photo again to 重点突出描述这张照片的主要内容及这些主要物品和人物的细节特别是衣着色彩等画面信息, in less than 180 words
-4. Print the description in below json format, in english:
+1. understand the key concept of this photo and composition of main objects
+2. From the main objects, describe this photo again to keep main information in image, including detail of key objects or person,  especially age, race, hair, cloth and positions in less than 200 words
+3. Print the description in below json format, in english:
 
                 \`\`\`json
                 "image_prompt": ""
@@ -61,24 +60,32 @@ class Pic2PixarBot(fp.PoeBot):
             # use poe remix image model, currently only SDXL and Playground is supported. Let's see when DALLE3 gives the same capability
             if original_content.startswith('--Style'):
                 message.content = f"{original_content.replace('--Style', '')} of [{image_prompt}]"
-            elif original_content.startswith('--Add'):
-                message.content = f"disney pixar cartoon movie style, au naturel, PS2, PS1, hyper detailed, digital art, trending in artstation, cinematic lighting, studio quality, smooth render of [{image_prompt}]"
+            elif original_content.startswith('--Disney'):
+                message.content = f"disney pixar cartoon movie style, norealistic, PS2, PS1, hyper detailed, digital art, trending in artstation, cinematic lighting, studio quality, smooth render of [{image_prompt}]"
             elif original_content.startswith('--Clash'):
                 message.content = f"3d, clash of clans, fantasy game, detailed, photorealistic, disney style, pixar style of [{image_prompt}]"
             elif original_content.startswith('--Digital'):
                 message.content = f"A digital painting by Artgerm, beautiful, masterpiece, concept art of [{image_prompt}]"
             else:
-                message.content = f"disney pixar cartoon movie style, au naturel, PS2, PS1, hyper detailed, digital art, trending in artstation, cinematic lighting, studio quality, smooth render of [{image_prompt}]"
+                message.content = f"3d, clash of clans, fantasy game, detailed, photorealistic, disney style, pixar style of [{image_prompt}]"
+            
+            # remove attachments since the remix for image model changed.
+            message.attachments = []
+            request.query = [fp.ProtocolMessage(role="user", content=message.content)]
+        
+
             image_response = await fp.get_final_response(request, bot_name=IMAGE_MODEL, api_key=request.access_key)
             print(message.content)
             print(image_response)
+
+
             yield fp.PartialResponse(text=f'{image_response}')
         except:
             yield fp.PartialResponse(text="Something went wrong. Please try again or contact the admin.")
             return
     async def get_settings(self, setting: fp.SettingsRequest) -> fp.SettingsResponse:
         return fp.SettingsResponse(server_bot_dependencies={LLM_MODEL: 1, IMAGE_MODEL: 1}, 
-                                   introduction_message="Welcome to the Pic2Pixar Image Bot Plus running by @xiaowenzhang. Please provide a image I will create a pixar style image for you...\n\n Update 20240806:\n\n - Change image model to FLUX-pro",
+                                   introduction_message="Welcome to the Pic2Pixar Image Bot Plus running by @xiaowenzhang. Please provide a image I will create a pixar style image for you...\n\n Update 20241124:\n\n - Change image model to FLUX-pro-1.1",
                                    allow_attachments=True)
     
     # Read the JSON string and extract the image_prompt and caption. Poe does not support JSON object call on GPT3.5/4
