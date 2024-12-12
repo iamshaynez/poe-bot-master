@@ -43,7 +43,7 @@ class OgImageCreatorBot(fp.PoeBot):
 {original_content}
 \`\`\`
 
-Print output in English in json, your design should be outstanding, creative like art.
+Print output in English in json, your design should be outstanding, creative like art. describe_the_poster in less than 70 words.
 
 \`\`\`json
 "describe_the_poster": " ",
@@ -59,10 +59,11 @@ Print output in English in json, your design should be outstanding, creative lik
             poster_title = self.extract_image_prompt(response_string, "poster_title")
             # final prompt
             message.content = f"""A poster design draft for {describe_the_poster}
-- Title: "{poster_title}"
+Title: "{poster_title}"
 
---style DESIGN
+
 --aspect 16:9
+--style DESIGN
 """
             print(f'Image Prompt: \n{message.content}')
             image_response = await fp.get_final_response(request, bot_name=IMAGE_MODEL, api_key=request.access_key)

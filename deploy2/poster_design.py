@@ -64,12 +64,11 @@ Print output in json, your design should be outstanding, creative like art.
 
             # final prompt
             message.content = f"""A poster design draft for {describe_the_poster}
-- Title: "{poster_title}"
-- Subtitle: "{poster_subtitle}"
-- Highlights: "{highlight_wording}"
+Title: "{poster_title}"
+Subtitle: "{poster_subtitle}"
+Highlights: "{highlight_wording}"
 
---style DESIGN
---aspect 2:3
+--aspect 9:16 --style DESIGN
 """
             print(f'Image Prompt: \n{message.content}')
             image_response = await fp.get_final_response(request, bot_name=IMAGE_MODEL, api_key=request.access_key)

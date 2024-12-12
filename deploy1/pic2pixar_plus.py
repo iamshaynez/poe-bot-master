@@ -67,7 +67,7 @@ class Pic2PixarBot(fp.PoeBot):
             elif original_content.startswith('--Digital'):
                 message.content = f"A digital painting by Artgerm, beautiful, masterpiece, concept art of [{image_prompt}]"
             else:
-                message.content = f"3d, clash of clans, fantasy game, detailed, photorealistic, disney style, pixar style of [{image_prompt}]"
+                message.content = f"disney pixar cartoon movie style, norealistic, PS2, PS1, hyper detailed, digital art, trending in artstation, cinematic lighting, studio quality, smooth render of of [{image_prompt}]"
             
             # remove attachments since the remix for image model changed.
             message.attachments = []
