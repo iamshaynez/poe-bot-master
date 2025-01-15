@@ -58,7 +58,7 @@ Print output in English in json, your design should be outstanding, creative lik
             describe_the_poster = self.extract_image_prompt(response_string, "describe_the_poster")
             poster_title = self.extract_image_prompt(response_string, "poster_title")
             # final prompt
-            message.content = f"""A poster design draft for {describe_the_poster}
+            message.content = f"""A vintage comic-style poster with muted, dark tones, for {describe_the_poster}
 Title: "{poster_title}"
 
 
