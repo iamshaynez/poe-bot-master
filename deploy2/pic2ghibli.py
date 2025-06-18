@@ -18,14 +18,13 @@ import re
 import os
 
 # Define 2 models for LLM and image model, can be changed with any POE bots
-LLM_MODEL = "GPT-4o"
+LLM_MODEL = "Gemini-1.5-Pro"
 IMAGE_MODEL = "Ideogram-v2"
 
-class OgImageCreatorBot(fp.PoeBot):
+class Pic2GhibliBot(fp.PoeBot):
     async def get_response(
         self, request: fp.QueryRequest
     ) -> AsyncIterable[fp.PartialResponse]:
-        print('Started Processing...')
         try:
             # remove content, only use the latest 1 query.
             request.query = [request.query[-1]]
@@ -33,44 +32,28 @@ class OgImageCreatorBot(fp.PoeBot):
             message = request.query[-1]
             # save original user message
             original_content = message.content
+            # validate attachment, only allow 1 and image 
+            if len(message.attachments) != 1 or not message.attachments[0].content_type.startswith('image'):
+                yield fp.PartialResponse(text="Please send an image.")
+                return
 
             # prompt to vision model and describe the image
             # if any key infor missed from the converted image, this prompt can be used to optimize
             # current GPT4 on poe doesnot support this prompt.
-            message.content = f"""Based on the content user provide, create a creative poster design in below format.
+            message.content = f"""Based on image, describe follow below chains of thoughts：
 
-\`\`\`content
-{original_content}
-\`\`\`
+1. understand the key concept of this photo and composition of main objects
+2. From the main objects, describe this photo again to keep main information in image, including detail of key objects or person,  especially age, race, hair, cloth and positions in less than 50 words
+3. Print the description in below json format, in english:
 
-Print output in json, your design should be outstanding, creative like art.
-
-\`\`\`json
-"describe_the_poster": " ",
-"poster_title": " ",
-"poster_subtitle":"",
-"highlight_wording":""
-\`\`\`"""
-            print('Prompt: \n', message.content)
+                \`\`\`json
+                "image_prompt": ""
+                \`\`\`"""
             # the prompt for remix image
-            response_string = await fp.get_final_response(request, bot_name=LLM_MODEL, api_key=request.access_key)
-            print(response_string)
+            final_vision_prompt = await fp.get_final_response(request, bot_name=LLM_MODEL, api_key=request.access_key)
+            print(final_vision_prompt)
+            image_prompt = self.extract_image_prompt(final_vision_prompt)
             
-            # extract key words
-            describe_the_poster = self.extract_image_prompt(response_string, "describe_the_poster")
-            poster_title = self.extract_image_prompt(response_string, "poster_title")
-            poster_subtitle = self.extract_image_prompt(response_string, "poster_subtitle")
-            highlight_wording = self.extract_image_prompt(response_string, "highlight_wording")
-
-            # final prompt
-            message.content = f"""A poster design draft for {describe_the_poster}
-Title: "{poster_title}"
-Subtitle: "{poster_subtitle}"
-Highlights: "{highlight_wording}"
-
---aspect 9:16 --style DESIGN
-"""
-            print(f'Image Prompt: \n{message.content}')
             sent_files = []
             async for msg in fp.stream_request(
                         request, IMAGE_MODEL, request.access_key
@@ -84,23 +67,21 @@ Highlights: "{highlight_wording}"
 
             for file in sent_files:
                 yield fp.PartialResponse(text=f"![image]({file.url})\n\n")
-
-        except Exception as e:
-            print(f"An error occurred: {e}")
-            yield fp.PartialResponse(text=f"Something went wrong. Please try again or contact the admin.")
+        except:
+            yield fp.PartialResponse(text="Something went wrong. Please try again or contact the admin.")
             return
     async def get_settings(self, setting: fp.SettingsRequest) -> fp.SettingsResponse:
         return fp.SettingsResponse(server_bot_dependencies={LLM_MODEL: 1, IMAGE_MODEL: 1}, 
-                                   introduction_message="Welcome to Poster Designer Pro running by @xiaowenzhang. Please provide content or even a full article for me to create Creative Poster for you. \n\n**Click Upvote to Support my work!**",
+                                   introduction_message="Welcome to the Pic2Ghibli Style Image Bot Plus running by @xiaowenzhang. Please provide a image I will create a pixar style image for you...",
                                    allow_attachments=True)
     
     # Read the JSON string and extract the image_prompt and caption. Poe does not support JSON object call on GPT3.5/4
-    def extract_image_prompt(self, json_string, tag):
+    def extract_image_prompt(self, long_string):
     # 定义正则表达式模式
-        pattern = rf'"{tag}": "(.*?)"'
+        pattern = r'"image_prompt": "(.*?)"'
         
         # 使用re.search查找第一个匹配项
-        match = re.search(pattern, json_string)
+        match = re.search(pattern, long_string)
         
         # 如果找到匹配项，返回匹配的内容，否则返回"ERROR"
         return match.group(1) if match else "ERROR"
@@ -108,13 +89,13 @@ Highlights: "{highlight_wording}"
 
 REQUIREMENTS = ["fastapi-poe==0.0.44"] # latest 0.0.34
 image = Image.debian_slim().pip_install(*REQUIREMENTS)
-app = App("poster-designer-pro-poe")
+app = App("ghibli-poe")
 
 
 @app.function(image=image, secrets=[modal.Secret.from_name("poe-secret"), modal.Secret.from_dotenv()])
 @asgi_app()
 def fastapi_app():
-    bot = OgImageCreatorBot()
+    bot = Pic2GhibliBot()
     # Optionally, provide your Poe access key here:
     # 1. You can go to https://poe.com/create_bot?server=1 to generate an access key.
     # 2. We strongly recommend using a key for a production bot to prevent abuse,
@@ -125,5 +106,5 @@ def fastapi_app():
     # app = make_app(bot, access_key=POE_ACCESS_KEY)
 
     #app = fp.make_app(bot, allow_without_key=True)
-    app = fp.make_app(bot, access_key=os.environ["POSTERDESIGNER_BOT_KEY"])
+    app = fp.make_app(bot, access_key=os.environ["PIC2GHIBLI_BOT_KEY"])
     return app
