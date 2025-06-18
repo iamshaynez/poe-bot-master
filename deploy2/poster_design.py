@@ -18,8 +18,8 @@ import re
 import os
 
 # Define 2 models for LLM and image model, can be changed with any POE bots
-LLM_MODEL = "GPT-4o"
-IMAGE_MODEL = "Ideogram-v2"
+LLM_MODEL = "Gemini-2.5-Flash-Preview"
+IMAGE_MODEL = "Ideogram-v3"
 
 class OgImageCreatorBot(fp.PoeBot):
     async def get_response(
@@ -71,6 +71,7 @@ Highlights: "{highlight_wording}"
 --aspect 9:16 --style DESIGN
 """
             print(f'Image Prompt: \n{message.content}')
+
             sent_files = []
             async for msg in fp.stream_request(
                         request, IMAGE_MODEL, request.access_key
@@ -106,7 +107,7 @@ Highlights: "{highlight_wording}"
         return match.group(1) if match else "ERROR"
 
 
-REQUIREMENTS = ["fastapi-poe==0.0.44"] # latest 0.0.34
+REQUIREMENTS = ["fastapi-poe==0.0.63"] # latest 0.0.34
 image = Image.debian_slim().pip_install(*REQUIREMENTS)
 app = App("poster-designer-pro-poe")
 

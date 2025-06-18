@@ -19,7 +19,7 @@ import os
 
 # Define 2 models for LLM and image model, can be changed with any POE bots
 LLM_MODEL = "Gemini-2.5-Flash-Preview"
-IMAGE_MODEL = "Ideogram-v2"
+IMAGE_MODEL = "Ideogram-v3"
 
 class OgImageCreatorBot(fp.PoeBot):
     async def get_response(

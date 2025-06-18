@@ -18,8 +18,8 @@ import re
 import os
 
 # Define 2 models for LLM and image model, can be changed with any POE bots
-LLM_MODEL = "GPT-4o"
-IMAGE_MODEL = "Ideogram"
+LLM_MODEL = "Gemini-2.5-Flash-Preview"
+IMAGE_MODEL = "Ideogram-v3"
 
 class OgImageCreatorBot(fp.PoeBot):
     async def get_response(
@@ -72,10 +72,19 @@ steps:
             # final prompt
             message.content = f"generate a four panel comic. Below panels in order.: \n1.{panel1_prompt} \n2.{panel2_prompt} \n3.{panel3_prompt} \n4.{panel4_prompt}"
             print(f'Image Prompt: \n{message.content}')
-            image_response = await fp.get_final_response(request, bot_name=IMAGE_MODEL, api_key=request.access_key)
-            #print(message.content)
-            print(image_response)
-            yield fp.PartialResponse(text=f'**Story**: \n\n"{story_line}"\n\n{image_response}')
+            sent_files = []
+            async for msg in fp.stream_request(
+                        request, IMAGE_MODEL, request.access_key
+            ):
+                # Add whatever logic you'd like to handle text responses from the Bot
+                pass
+                # If there is an attachment, add it to the list of sent files
+                if msg.attachment:
+                    print(f'图像响应:', msg.attachment)
+                    sent_files.append(msg.attachment)
+
+            for file in sent_files:
+                yield fp.PartialResponse(text=f"![image]({file.url})\n\n")
 
         except Exception as e:
             print(f"An error occurred: {e}")
