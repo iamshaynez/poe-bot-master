@@ -120,7 +120,6 @@ Style: Children's book illustration, warm and friendly, soft colors, cartoon sty
                             sent_files.append(msg.attachment)
                     #print(f'第{i}段图像响应:', image_response)
                     for file in sent_files:
-                    
                         yield fp.PartialResponse(text=f"![第{i}段图像]({file.url})\n\n")
                 else:
                     yield fp.PartialResponse(text="⚠️ Failed to create image...\n\n")
