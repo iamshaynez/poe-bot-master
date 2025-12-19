@@ -18,8 +18,8 @@ import re
 import os
 
 # Define 2 models for LLM and image model, can be changed with any POE bots
-LLM_MODEL = "Claude-3.5-Haiku"
-IMAGE_MODEL = "Playground-v3"
+LLM_MODEL = "Gemini-3-Flash"
+IMAGE_MODEL = "FLUX-Krea"
 
 class OgImageCreatorBot(fp.PoeBot):
     async def get_response(
@@ -78,7 +78,7 @@ class OgImageCreatorBot(fp.PoeBot):
         return match.group(1) if match else "ERROR"
 
 
-REQUIREMENTS = ["fastapi-poe==0.0.44"] # latest 0.0.34
+REQUIREMENTS = ["fastapi-poe==0.0.81"] # latest 0.0.34
 image = Image.debian_slim().pip_install(*REQUIREMENTS)
 app = App("ogimage-pro-poe")
 

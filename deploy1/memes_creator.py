@@ -18,8 +18,8 @@ import re
 import os
 
 # Define 2 models for LLM and image model, can be changed with any POE bots
-LLM_MODEL = "GPT-4o"
-IMAGE_MODEL = "Ideogram"
+LLM_MODEL = "Gemini-3-Flash"
+IMAGE_MODEL = "FLUX-Krea"
 
 class MemesCreatorBot(fp.PoeBot):
     async def get_response(
@@ -85,7 +85,7 @@ class MemesCreatorBot(fp.PoeBot):
         # 如果找到匹配项，返回匹配的内容，否则返回"ERROR"
         return match.group(1) if match else "ERROR"
 
-REQUIREMENTS = ["fastapi-poe==0.0.44"] # latest 0.0.34
+REQUIREMENTS = ["fastapi-poe==0.0.81"] # latest 0.0.34
 image = Image.debian_slim().pip_install(*REQUIREMENTS)
 app = App("memes-creator-poe")
 

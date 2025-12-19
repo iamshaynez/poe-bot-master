@@ -87,7 +87,7 @@ class CartoonAvatarBot(fp.PoeBot):
         return match.group(1) if match else "ERROR"
 
 
-REQUIREMENTS = ["fastapi-poe==0.0.44"] # latest 0.0.34
+REQUIREMENTS = ["fastapi-poe==0.0.81"] # latest 0.0.34
 image = Image.debian_slim().pip_install(*REQUIREMENTS)
 app = App("anime-plus-vg-poe")
 
